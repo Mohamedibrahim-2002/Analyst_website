@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Market Image Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+    <style>
+      body {
+        background: radial-gradient(circle at top, #0f172a, #020617);
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen text-slate-200 flex items-center justify-center px-4"
+  >
+    <div
+      class="w-full max-w-3xl bg-slate-900/80 backdrop-blur rounded-2xl shadow-xl p-6"
+    >
+      <!-- Header -->
+      <div class="mb-6">
+        <h1 class="text-2xl font-semibold tracking-tight">
+          Market Image Analyzer
+        </h1>
+        <p class="text-slate-400 text-sm mt-1">
+          Upload a chart image to analyze market structure & bias
+        </p>
+      </div>
+
+      <!-- Upload -->
+      <div
+        class="border border-dashed border-slate-700 rounded-xl p-4 text-center"
+      >
+        <input id="fileInput" type="file" accept="image/*" class="hidden" />
+        <label for="fileInput" class="cursor-pointer block">
+          <div class="text-slate-300">Click to upload chart image</div>
+          <div class="text-xs text-slate-500 mt-1">PNG / JPG supported</div>
+        </label>
+      </div>
+
+      <!-- Preview -->
+      <div id="preview" class="mt-4 hidden">
+        <img class="rounded-lg max-h-64 mx-auto" />
+      </div>
+
+      <!-- Button -->
+      <button
+        id="analyzeBtn"
+        class="mt-6 w-full bg-indigo-600 hover:bg-indigo-500 transition rounded-xl py-2 font-medium"
+      >
+        Analyze Market
+      </button>
+
+      <button
+        id="exportImageBtn"
+        class="mt-3 w-full bg-slate-700 hover:bg-slate-600 transition rounded-xl py-2 text-sm hidden"
+      >
+        Export Analysis as Image
+      </button>
+
+      <button
+        id="exportPdfBtn"
+        class="mt-2 w-full bg-indigo-700 hover:bg-indigo-600 transition rounded-xl py-2 text-sm hidden"
+      >
+        Export Analysis as PDF
+      </button>
+
+      <!-- Result -->
+      <div id="result" class="mt-6 hidden space-y-4">
+        <!-- Badges -->
+        <div class="flex flex-wrap gap-2 text-sm">
+          <span
+            id="assetBadge"
+            class="px-3 py-1 rounded-full bg-slate-700"
+          ></span>
+          <span id="tfBadge" class="px-3 py-1 rounded-full bg-slate-700"></span>
+          <span id="trendBadge" class="px-3 py-1 rounded-full"></span>
+          <span
+            id="riskBadge"
+            class="px-3 py-1 rounded-full font-medium"
+          ></span>
+        </div>
+
+        <!-- Confidence -->
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>Confidence</span>
+            <span id="confidenceText"></span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+            <div id="confidenceBar" class="h-2 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- Nearest Levels -->
+        <div id="nearestLevels" class="mt-4 hidden text-sm">
+          <div class="flex justify-between">
+            <span class="text-emerald-400">Nearest Support</span>
+            <span id="nearestSupport"></span>
+          </div>
+          <div class="flex justify-between mt-1">
+            <span class="text-red-400">Nearest Resistance</span>
+            <span id="nearestResistance"></span>
+          </div>
+        </div>
+
+        <!-- Price Proximity Alert -->
+        <div
+          id="priceAlert"
+          class="mt-4 hidden text-sm px-4 py-2 rounded-lg font-medium"
+        ></div>
+
+        <!-- Risk Heat Indicator -->
+        <div
+          id="riskHeat"
+          class="mt-4 hidden rounded-xl p-4 text-center font-semibold text-sm"
+        ></div>
+
+        <!-- Market Phase Explanation -->
+        <div
+          id="phaseExplain"
+          class="mt-4 hidden bg-slate-800/60 border border-slate-700 rounded-xl p-4 text-sm"
+        ></div>
+
+        <!-- Details -->
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <span class="text-slate-400">Structure:</span>
+            <span id="structure"></span>
+          </div>
+          <div>
+            <span class="text-slate-400">Market Phase:</span>
+            <span id="phase"></span>
+          </div>
+        </div>
+
+        <!-- Scenarios -->
+        <div>
+          <h3 class="text-sm text-slate-400 mb-2">Scenarios</h3>
+          <div id="scenarios" class="space-y-2"></div>
+        </div>
+
+        <!-- Support & Resistance -->
+        <div>
+          <h3 class="text-sm text-slate-400 mb-2">Support & Resistance</h3>
+          <div id="srLevels" class="space-y-1 text-sm font-mono"></div>
+        </div>
+      </div>
+      <!-- End of #result -->
+    </div>
+    <!-- End of main container div -->
+
+    <script src="app.js"></script>
+  </body>
+</html>
