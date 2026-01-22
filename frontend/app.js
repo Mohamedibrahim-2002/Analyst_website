@@ -305,7 +305,7 @@ analyzeBtn.addEventListener("click", async () => {
   fd.append("file", file);
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/analyze", {
+    const res = await fetch("https://analyst-website.onrender.com", {
       method: "POST",
       body: fd,
     });
