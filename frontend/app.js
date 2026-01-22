@@ -28,6 +28,97 @@ const trendColors = {
   Neutral: "bg-slate-500",
 };
 
+const HISTORY_KEY = "market_analysis_history";
+const MAX_HISTORY = 5;
+
+function getHistory() {
+  return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+}
+
+function saveToHistory(data) {
+  const history = getHistory();
+
+  history.unshift({
+    time: new Date().toLocaleString(),
+    asset: data.asset,
+    timeframe: data.timeframe,
+    trend: data.trend,
+    risk: data.risk,
+    confidence: data.confidence,
+    snapshot: data,
+  });
+
+  if (history.length > MAX_HISTORY) {
+    history.pop();
+  }
+
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+function renderHistory() {
+  const historyList = document.getElementById("historyList");
+  const history = getHistory();
+
+  historyList.innerHTML = "";
+
+  if (history.length === 0) {
+    historyList.innerHTML = `<div class="text-slate-500 text-xs">No history yet</div>`;
+    return;
+  }
+
+  history.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className =
+      "flex justify-between items-center bg-slate-800/60 rounded px-3 py-2 cursor-pointer hover:bg-slate-700";
+
+    div.innerHTML = `
+      <div>
+        <div class="font-medium">${item.asset} • ${item.timeframe}</div>
+        <div class="text-xs text-slate-400">${item.time}</div>
+      </div>
+      <div class="text-xs">
+        ${Math.round(item.confidence * 100)}%
+      </div>
+    `;
+
+    div.onclick = () => restoreAnalysis(item.snapshot);
+    historyList.appendChild(div);
+  });
+}
+
+function restoreAnalysis(d) {
+  assetBadge.textContent = d.asset;
+  tfBadge.textContent = d.timeframe;
+
+  trendBadge.textContent = d.trend;
+  trendBadge.className =
+    "px-3 py-1 rounded-full " + (trendColors[d.trend] || "bg-slate-600");
+
+  riskBadge.textContent = "Risk: " + d.risk;
+  riskBadge.className =
+    "px-3 py-1 rounded-full font-medium " +
+    (riskColors[d.risk] || "bg-slate-600");
+
+  structureEl.textContent = d.structure;
+  phaseEl.textContent = d.market_phase;
+
+  setConfidence(d.confidence);
+
+  renderSRLevels(d.support_zones, d.resistance_zones);
+  highlightNearestLevels(d.current_price, d.support_zones, d.resistance_zones);
+
+  priceProximityAlert(
+    d.current_price,
+    d.support_zones?.[0]?.level,
+    d.resistance_zones?.[0]?.level,
+  );
+
+  renderRiskHeat(d.risk, d.confidence);
+  explainMarketPhase(d.market_phase, d.trend);
+
+  result.classList.remove("hidden");
+}
+
 async function exportAsImage() {
   const target = document.getElementById("result");
 
@@ -265,6 +356,8 @@ analyzeBtn.addEventListener("click", async () => {
     explainMarketPhase(d.market_phase, d.trend);
     document.getElementById("exportImageBtn").classList.remove("hidden");
     document.getElementById("exportPdfBtn").classList.remove("hidden");
+    saveToHistory(d);
+    renderHistory();
 
     result.classList.remove("hidden");
   } catch (err) {
@@ -304,3 +397,4 @@ function renderSRLevels(supports = [], resistances = []) {
       sr.appendChild(div);
     });
 }
+document.addEventListener("DOMContentLoaded", renderHistory);
