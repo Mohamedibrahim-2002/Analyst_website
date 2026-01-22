@@ -304,10 +304,12 @@ analyzeBtn.addEventListener("click", async () => {
   const fd = new FormData();
   fd.append("file", file);
 
+  const API_BASE = "https://analyst-website.onrender.com";
+
   try {
-    const res = await fetch("https://analyst-website.onrender.com", {
+    const res = await fetch(`${API_BASE}/api/analyze`, {
       method: "POST",
-      body: fd,
+      body: formData,
     });
     const d = await res.json();
 
